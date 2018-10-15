@@ -1,0 +1,77 @@
+<?php
+$bar_url="../"; //chemin dossier racine
+if(isset( $_GET['dossier'])){
+    $dossier = ($_GET['dossier']);
+    $bar_url= $bar_url.$dossier;
+}
+$dirs = scandir($bar_url);//afficher la racine
+
+function parcourtDossier($chemin, $level) {
+	global $bar_url;
+
+	if (is_dir($chemin)) {
+		// c'est un dossier
+
+		// ouvre le dossier 
+		if ($handle = opendir($chemin)) {
+
+			// liste de tout ce qu'on va trouver
+			$dirFiles = array();
+
+			// récupère la liste des fichiers/dossiers
+			while (false !== ($entry = readdir($handle))) {
+				$dirFiles[] = $entry;
+			}
+
+			// trie dans l'ordre alpha
+			sort($dirFiles, SORT_NATURAL | SORT_FLAG_CASE);
+
+			// affiche la liste triée
+			foreach($dirFiles as $entry) {
+
+				if ($entry != "." && $entry != "..") {
+
+					if (is_dir($chemin.'/'.$entry)) {
+						
+						// affiche le nom du dossier
+						if ($level == 0) {
+							$b1 = '<div style="width:100%; background-color:#ddd; padding:1px; margin-top:20px;"><h2 style="padding-left:20px; ">';
+							$b2 = '</h2></div>';
+						}
+						if ($level == 1) {
+							$b1 = '<div style="width:100%; background-color:#eee; padding:1px; margin-top:15px;"><h4 style="padding-left:20px;">';
+							$b2 = '</h3></div>';
+						}
+						if ($level >= 2) {
+							$b1 = '<div style="width:100%; background-color:#f4f4f4; margin-top:10px;"><b style="padding-left:20px;">';
+							$b2 = '</b></div>';
+						}
+						// rajouter des niveaux si besoin
+
+						echo $b1;
+						echo '<b>'.$entry.'</b>';
+						echo $b2;
+
+						// affiche le contenu du dossier
+						echo '<div style="margin-left:60px; margin-top:4px;">';
+						parcourtDossier($chemin.'/'.$entry, $level + 1);
+						echo '</div>';
+					}
+					
+				}
+			}
+			closedir($handle);
+		}
+
+	} else {
+		// $chemin est un fichier
+		// utilisé seulement dans le cas où on le paramètre est un nom de fichier
+		if ($chemin != "." && $chemin != "..") {
+			echo '<a href="'.$bar_url.'kp-content/download/'.$chemin.'" download>'.$chemin.'</a><br/>';
+		}
+	}
+}
+
+parcourtDossier("chemin/du/dossier", 0);
+?>
+
